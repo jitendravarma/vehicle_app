@@ -1,0 +1,75 @@
+{% extends 'index.html' %}
+
+{% block title %} Profile {% endblock title %}
+
+{% block main-content %}
+<div>
+	<div class="row mt-4 mb-4">
+		<div class="col-md-6">
+			<h3>Create Profile</h3>
+		</div>
+		<div class="col-md-5 text-right">
+			<a href="{% url 'location-view' %}" class="btn btn-primary text-white">Add location</a>
+		</div>
+	</div>
+	{% if not can_create %}
+	<div class="alert alert-danger alert-row-error alert-dismissible" role="alert">
+		<strong>Alert!</strong>
+		<span class="error-text">Location or File Server credentials are missing.</span>
+	</div>
+	{% endif %}
+	<div class="row">
+		<div class="col-md-8">
+			<form method="POST">
+				{% csrf_token %}
+				<div class="form-group row">
+					<label for="staticEmail" class="col-sm-3 col-form-label">Profile Name</label>
+					<div class="col-sm-6">
+						<input type="text" class="form-control" name="name" placeholder="Name">
+						{% if form.name.errors %}
+						<small class="form-text text-danger">{{form.name.errors.0}}</small>
+						{% endif %}
+					</div>
+				</div>
+				<div class="form-group row">
+					<label for="inputPassword" class="col-sm-3 col-form-label">Location</label>
+					<div class="col-sm-6">
+						<select class="custom-select" name="location">
+							{% for i in location %}
+							<option selected value="{{i.id}}">{{ i.city}},&nbsp;{{i.country}}</option>
+							{% endfor %}
+						</select>
+					</div>
+				</div>
+				<div class="form-group row">
+					<label for="inputPassword" class="col-sm-3 col-form-label">Update Type</label>
+					<div class="col-sm-6">
+						<select class="custom-select" name="update_by">
+							{% for update in updates %}
+							<option selected value="{{update.0}}">{{update.0}}</option>
+							{% endfor %}
+						</select>
+					</div>
+				</div>
+				<div class="form-group row">
+					<label for="inputPassword" class="col-sm-3 col-form-label">Archive By</label>
+					<div class="col-sm-6">
+						<select class="custom-select" name="archive_by">
+							{% for update in updates %}
+							<option selected value="{{update.0}}">{{update.0}}</option>
+							{% endfor %}
+						</select>
+					</div>
+				</div>
+				<div class="text-center">
+					{% if can_create %}
+					<button type="submit" class="btn btn-primary">Create</button>
+					{% else%}
+					<button type="button" disabled class="btn btn-primary">Create</button>
+					{% endif %}
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock main-content %}

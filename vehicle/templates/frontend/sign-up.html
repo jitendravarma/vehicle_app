@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %} Login {% endblock title %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-4 m-4 p-3 border">
+        <center>
+            <h4>Sign Up</h4>
+        </center>
+        <form action="" method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="exampleInputEmail1">Email</label>
+                <input type="email" class="form-control" name="email" aria-describedby="emailHelp"
+                    placeholder="Enter email" value="{{form.cleaned_data.email}}">
+                {% if form.email.errors %}
+                <small class="form-text text-danger">{{ form.email.errors.0 }}</small>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="exampleInputPassword1">Password</label>
+                <input type="password" class="form-control" name="password" placeholder="********">
+            </div>
+            <div class="form-group">
+                <label for="exampleInputPassword1">Confirm Password</label>
+                <input type="password" class="form-control" name="confirm_password" placeholder="********">
+                {% if form.password.errors %}
+                <small class="form-text text-danger">{{form.password.errors.0}}</small>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="exampleInputPassword1">User Type</label>
+                <select class="custom-select" name="user_type" required>
+                    <option selected value="user">User</option>
+                    <option value="admin">Admin</option>
+                    <option value="super_user">SuperAdmin</option>
+                </select>
+            </div>
+            <div class="center">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+            <span><a href="{% url 'login-view' %}" class="">
+                    <p class="text-primary">Already have an account ? Login</p>
+                </a></span>
+        </form>
+    </div>
+</div>
+{% endblock content %}

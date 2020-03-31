@@ -1,0 +1,107 @@
+{% extends 'index.html' %}
+
+{% block title %} Profile {% endblock title %}
+
+{% block main-content %}
+<div>
+    <div class="row mt-4 mb-4">
+        <div class="col-md-6">
+            <h3>Settings</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-10">
+            <div class="alert alert-info alert-validate-success alert-dismissible" role="alert" hidden>
+                <strong>Info! Credentials are valid for file server</strong>
+                <span class="success-text"></span>
+            </div>
+        </div>
+        <div class="col-10">
+            <div class="alert alert-danger alert-validate-error alert-dismissible" role="alert" hidden>
+                <strong>Info! Credentials are invalid for file server</strong>
+                <span class="success-text"></span>
+            </div>
+        </div>
+    </div>
+    <form method="POST">
+        <div class="col-md-8">
+            <h5>File Server</h5>
+            <div>
+                {% csrf_token %}
+                <div class="form-group row">
+                    <label for="staticEmail" class="col-sm-3 col-form-label">Server URL</label>
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control" id="url" name="url" value="{{file_server.url}}"
+                            placeholder="URL eg: 'http://app.nihaocloud.com/'" required="">
+                    </div>
+                    <div class="col-sm-3 text-left">
+                        <button type="button" class="btn btn-primary" id="validate-creds">Validate</button>
+                    </div>
+                </div>
+                {% csrf_token %}
+                <input type="password" class="form-control" name="id" value="{{file_server.id}}" hidden>
+                <div class="form-group row">
+                    <label for="inputPassword" class="col-sm-3 col-form-label">User Name</label>
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control" name="username" id="uname" placeholder="User Name"
+                            value="{{file_server.username}}" required="">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="inputPassword" class="col-sm-3 col-form-label">Password</label>
+                    <div class="col-sm-6">
+                        <input type="password" class="form-control" id="password" name="password" placeholder="********"
+                            value="{{file_server.password}}" required="">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="inputPassword" class="col-sm-3 col-form-label">Master Library</label>
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control" id="master_library" name="master_library"
+                            placeholder="Library Name" value="{{file_server.master_library}}" required="">
+                    </div>
+                </div>
+                {% if form.form_errors.errors %}
+                <small class="form-text text-danger">{{ form.form_errors.errors.0 }}</small>
+                {% endif %}
+            </div>
+            <div class="mb-4">
+                <div class="mt-5 mb-4">
+                    <h5>Change Password</h5>
+                    <h6 class="text-danger">Login will be required</h6>
+                </div>
+                <div class="form">
+                    <div class="form-group row">
+                        <label for="inputPassword" class="col-sm-3 col-form-label">Current Password</label>
+                        <div class="col-sm-6">
+                            <input type="password" class="form-control" name="cpassword" placeholder="*********">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="inputPassword" class="col-sm-3 col-form-label">New Password</label>
+                        <div class="col-sm-6">
+                            <input type="password" class="form-control" name="new_password" placeholder="*********">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="inputPassword" class="col-sm-3 col-form-label">Confirm New Password</label>
+                        <div class="col-sm-6">
+                            <input type="password" class="form-control" name="confirm_new" placeholder="*********">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="center mb-3 text-center">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </form>
+    <div class="alert alert-success alert-row-success alert-dismissible" role="alert" hidden>
+        <strong>Success!</strong>
+        <span class="success-text"></span>
+        <button type="button" class="hide-Alert close" aria-label="Close">
+            <span class="hide-success-message">&times;</span>
+        </button>
+    </div>
+</div>
+{% endblock main-content %}

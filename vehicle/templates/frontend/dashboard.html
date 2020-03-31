@@ -1,0 +1,56 @@
+{% extends 'index.html' %}
+
+{% block title %} Dashboard {% endblock title %}
+
+{% block main-content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="row">
+                <div class="col-6">
+                    <h4 class="mt-4 mb-4">Dashboard</h4>
+                </div>
+                {% if user_type == 'super_user' %}
+                <div class="col-6 text-right">
+                    <a class="mt-4 mb-4 btn btn-primary" href="{% url 'vehicle-view' %}">Add New</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-12">
+            {% if vehicle %}
+            <table class="table table-bordered p-0">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Number</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Model</th>
+                        <th scope="col">Description</th>
+                        {% if user_type != 'user' %}
+                        <th scope="col">Update</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in vehicle %}
+                    <tr>
+                        <td class="text-center">{{item.id}}</td>
+                        <td class="text-center">{{item.number}}</td>
+                        <td class="text-center">{{item.unit_type}}</td>
+                        <td class="text-center">{{item.model}}</td>
+                        <td class="text-center">{{item.description}}</td>
+                        {% if user_type != 'user' %}
+                        <td class="text-center"><a href='{% url "vehicle-update-view" item.id %}'>Update</a></td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No Vehicles Found</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock main-content %}

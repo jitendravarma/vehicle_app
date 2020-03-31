@@ -1,0 +1,220 @@
+{% extends 'index.html' %}
+
+{% block title %} Dashboard {% endblock title %}
+{% block extra-css %}
+<link rel="stylesheet" href="/static/css/datetimepicker.css">
+{% endblock extra-css %}
+{% block main-content %}
+<div>
+    <div class="row mt-4 mb-4">
+        <div class="col-md-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'profile-view' %}">All</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{profile.name}}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <div class="row mt-4 mb-4">
+        <div class="col-md-4">
+            <h3>Profile</h3>
+        </div>
+    </div>
+    <form method="POST" class="moods-profile">
+        <div class="">
+            {% csrf_token %}
+            <table class="table table-lg table-bordered p-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Location</th>
+                        <th scope="col">Updated</th>
+                        <th scope="col">Archived</th>
+                        <th scope="col">Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <input type="text" value="{{profile.name}}" class="form-control" name="profile_name">
+                        </td>
+                        <td>
+                            <select class=" custom-select" name="location">
+                                <option value="{{profile.location.id}}" selected name="location">
+                                    {{profile.location.city}}, {{profile.location.country}}
+                                </option>
+                                {% for loc in location %}
+                                <option value="{{loc.id}}">{{loc.city}}, {{loc.country}}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td>
+                            <select class="custom-select" name="update_by">
+                                <option value="{{profile.update_by}}" selected name="update_by">
+                                    {{profile.update_by}}
+                                </option>
+                                {% for update in updates %}
+                                <option value="{{update.0}}" name="update_by">{{update.0}}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td>
+                            <select class="custom-select" name="archive_by">
+                                <option value="{{profile.archive_by}}" selected name="archive_by">
+                                    {{profile.archive_by}}
+                                </option>
+                                {% for update in updates %}
+                                <option value="{{update.0}}" name="archive_by">{{update.0}}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td class="text-center">
+                            <button class="btn btn-primary" data-toggle="modal" data-target="#deleteModal" type="button"
+                                data-id="{{profile.id}}">Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="row mt-4 mb-4">
+            <div class="col-md-6">
+                <h3>Moods</h3>
+            </div>
+        </div>
+        <div class="alert alert-success alert-row-success alert-dismissible" role="alert" hidden>
+            <strong>Success!</strong>
+            <span class="success-text"></span>
+            <button type="button" class="hide-Alert close" aria-label="Close">
+                <span class="hide-success-message">&times;</span>
+            </button>
+        </div>
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+        <div class="alert alert-danger alert-row-error alert-dismissible" role="alert">
+            <strong>Alert!</strong>
+            <span class="error-text">{{ message }}</span>
+            <button type="button" class="hide-Alert close" aria-label="Close">
+                <span class="hide-error-message">&times;</span>
+            </button>
+        </div>
+        {% endif %}
+        {% endfor %}
+        {% else %}
+        <div class="alert alert-danger alert-row-error alert-dismissible" role="alert" hidden>
+            <strong>Alert!</strong>
+            <span class="error-text"></span>
+            <button type="button" class="hide-Alert close" aria-label="Close">
+                <span class="hide-error-message">&times;</span>
+            </button>
+        </div>
+        {% endif %}
+        <div style="overflow-x:auto;">
+            <input type="text" id="profile-data-id" name="profile" value={{profile.id}} hidden>
+            <table id="mood-formset" class="table table-lg table-bordered p-0">
+                {{ formset.management_form }}
+                {% for form in formset.forms %}
+                {% if forloop.first %}
+                <thead>
+                    <tr class="custom-tr">
+                        {% for field in form.visible_fields %}
+                        <th scope="col">{{ field.label|capfirst }}</th>
+                        {% endfor %}
+                        <th>Add</th>
+                        <th>View</th>
+                    </tr>
+                </thead>
+                {% endif %}
+                <tr class="formset-input-box-{{forloop.counter0}}">
+                    {% csrf_token %}
+                    {% for field in form.visible_fields %}
+                    <td>
+                        {# Include the hidden fields in the form #}
+                        {% if forloop.first %}
+                        {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                        {% endfor %}
+                        {% endif %}
+                        {{ field.errors.as_ul }}
+                        {{ field }}
+                    </td>
+                    {% endfor %}
+                    <td><span class="moods-add cp">Add</span></td>
+                    <td><span class="view-mood cp" data-id="{{forloop.counter0}}">View</span></td>
+                </tr>
+                {% endfor %}
+            </table>
+            <table id="mood-formset-cloned" class="table table-bordered p-0 table-responsive" hidden>
+                <tbody>
+                    <tr class="formset-table-hidden hidden">
+                        <td>
+                            <input class="formset-name">
+                        </td>
+                        <td>
+                            <div class='input-group date date_field formset-start'>
+                                <input type="text" class="form-control datetimepicker-input">
+                                <span class="input-group-addon">
+                                    <span class="fa fa-clock"></span>
+                                </span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class='input-group date date_field formset-end'>
+                                <input type="text" class="form-control datetimepicker-input">
+                                <span class="input-group-addon">
+                                    <span class="fa fa-clock"></span>
+                                </span>
+                            </div>
+                        </td>
+                        <td>
+                            <select class="formset-type">
+                                {% for mood in mood_type %}
+                                {% if forloop.first %}
+                                <option value="{{mood.0}}" selected>{{mood.0}}</option>
+                                {% endif %}
+                                <option value="{{mood.0}}" selected>{{mood.0}}</option>
+                                {% endfor%}
+                            </select>
+                        </td>
+                        <td>
+                            <select class="formset-select">
+                                <option value="Random" selected>Random</option>
+                                <option value="Latest">Latest</option>
+                            </select>
+                        </td>
+                        <td>
+                            <div class='input-group date date_field formset-start-date'>
+                                <input type="text" class="form-control datetimepicker-input">
+                                <span class="input-group-addon">
+                                    <span class="fa fa-clock"></span>
+                                </span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class='input-group date date_field formset-end-date'>
+                                <input type="text" class="form-control datetimepicker-input">
+                                <span class="input-group-addon">
+                                    <span class="fa fa-clock"></span>
+                                </span>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="checkbox" class="formset-delete">
+                        </td>
+                        <td><span class="moods-add cp">Add</span></td>
+                        <td><span class="view-mood cp">View</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="text-center mb-4 mt-4">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </form>
+    {% include 'frontend/delete-profile-modal.html'%}
+</div>
+{% endblock main-content %}
+{% block extra-js %}
+<script type="text/javascript" src="/static/js/datetimepicker.js"></script>
+{% endblock extra-js %}

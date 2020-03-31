@@ -1,0 +1,115 @@
+{% extends 'index.html' %}
+
+{% block title %} Profile {% endblock title %}
+
+{% block main-content %}
+<div>
+    <div class="row mt-4 mb-4">
+        <div class="col-md-6">
+            <h3>Profile</h3>
+        </div>
+        <div class="col-md-5 text-right">
+            <a href="{% url 'location-view' %}" class="btn btn-primary text-white">Add location</a>
+            {% if not can_create %}
+            <button class="btn btn-primary text-white" disabled>Create new</button>
+            {% else %}
+            <a href="{% url 'create-profile' %}" class="btn btn-primary text-white">Create new</a>
+            {% endif %}
+        </div>
+    </div>
+    {% if not can_create %}
+    <div class="alert alert-info alert-info-success alert-dismissible" role="alert">
+        <strong>Alert!</strong>
+        <span class="info-text">Location or File Server credentials are missing</span>
+    </div>
+    {% endif %}
+    {% if profiles %}
+    <div class="alert alert-success alert-row-success alert-dismissible" role="alert" hidden>
+        <strong>Success!</strong>
+        <span class="success-text"></span>
+        <button type="button" class="hide-Alert close" aria-label="Close">
+            <span class="hide-success-message">&times;</span>
+        </button>
+    </div>
+    <div>
+        <table class="table table-bordered p-0">
+            <thead>
+                <tr>
+                    <th scope="col">No.</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Location</th>
+                    <th scope="col">Updated</th>
+                    <th scope="col">Archived</th>
+                    <th scope="col">Export XML</th>
+                    <th scope="col">Enable/ Disable</th>
+                    <th scope="col">Force Update</th>
+                    <th scope="col">View</th>
+                    <th scope="col">Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% csrf_token %}
+                {% for profile in profiles %}
+                <tr id="tr-{{profile.id}}">
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td>{{ profile.name }}</td>
+                    <td>
+                        {{profile.location.city}}, {{profile.location.country}}
+                    </td>
+                    <td>{{profile.update_by|default:'NA'}}</td>
+                    <td>{{profile.archive_by|default:'NA'}}</td>
+                    <td><a href='{% url "download-xml" profile.id %}'>Export</a></td>
+                    <td id="disable-{{profile.id}}" class="{% if profile.is_disabled %}text-danger{% endif%} cp"
+                        data-toggle="modal" data-target="#disableModal" data-id="{{profile.id}}"
+                        data-dis="{{profile.is_disabled}}">
+                        {% if profile.is_disabled %}Disabled{% else %}Enabled{% endif%}
+                    </td>
+                    <td class="cp force-update" data-id="{{profile.id}}">Update</td>
+                    <td><a href="{% url 'moods-detail' profile.id %}">View</a></td>
+                    <td data-toggle="modal" data-target="#deleteModal" data-id="{{profile.id}}" class="cp text-danger">
+                        Delete
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div>
+        <h5 class="display-5">No profiles found</h5>
+    </div>
+    {% endif %}
+    {% if is_paginated %}
+    <div class="row m-4">
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#"><span>&laquo;</span></a></li>
+                {% endif %}
+                {% for i in paginator.page_range %}
+                {% if page_obj.number == i %}
+                <li class="page-item active"><a class="page-link" href="#">{{ i }} <span
+                            class="sr-only">(current)</span></a></li>
+                {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+                {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#"><span>&raquo;</span></a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+    {% include 'frontend/delete-profile-modal.html'%}
+    {% include 'frontend/disable-profile-modal.html'%}
+</div>
+{% endblock main-content %}
+{% block extra-js %}
+<script type="text/javascript" src="/static/js/datetimepicker.js"></script>
+{% endblock extra-js %}

@@ -1,0 +1,144 @@
+{% extends 'index.html' %}
+
+{% block title %} Tracks Listing {% endblock title %}
+
+{% block main-content %}
+<h3 class="mt-4">Add Tracks</h3>
+<div class="mt-4">
+    <form action="" method="POST" enctype="multipart/form-data">
+        <div class="mt-4 mb-4">
+            <table class="table table-sm table-bordered p-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Beat</th>
+                        <th scope="col">Rating</th>
+                        <th scope="col">Genre</th>
+                        <th scope="col">Should Save</th>
+                    </tr>
+                </thead>
+                {% csrf_token %}
+                <tbody>
+                    <tr>
+                        <td>
+                            <select class="custom-select" name="beat">
+                                {% for item in units %}
+                                <option value="{{item.0}}">{{item.0}}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td>
+                            <select class="custom-select" name="rating">
+                                {% for item in units %}
+                                <option value="{{item.0}}">{{item.0}}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td>
+                            <select class="custom-select" name="genre">
+                                {% for item in genre %}
+                                <option value="{{item.id}}">{{item.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td>
+                            <select class="custom-select" name="should_save" id="should_save">
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        {% if form.filename.errors %}
+        <div class="alert alert-danger alert-row-error alert-dismissible" role="alert">
+            <strong>Alert!</strong>
+            <span class="error-text">{{ form.filename.errors.0 }}</span>
+            <button type="button" class="hide-Alert close" aria-label="Close">
+                <span class="hide-error-message">&times;</span>
+            </button>
+        </div>
+        {% endif %}
+        {% if not genre %}
+        <div class="alert alert-danger alert-row-error alert-dismissible" role="alert">
+            <strong>Alert!</strong>
+            <span class="error-text">Please add genre before adding Tracks</span>
+        </div>
+        {% endif %}
+        <div class="text-center">
+            <div class="mb-4 mt-4">
+                {% if not genre %}
+                <button type="button" class="btn btn-primary" disabled>
+                    <span class="glyphicon glyphicon-cloud-upload"></span> Upload photos
+                </button>
+                {% else %}
+                <button type="button" class="btn btn-primary js-upload-photos">
+                    <span class="glyphicon glyphicon-cloud-upload"></span> Upload tracks
+                </button>
+                <input id="fileupload" type="file" name="filename" multiple style="display: none;"
+                    data-url="{% url 'add-tracks-view' %}">
+                {% endif %}
+            </div>
+        </div>
+    </form>
+    <div class="modal fade" id="modal-progress" tabindex="-1" role="dialog" aria-labelledby="DisableModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabel">Uploading...</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: 0%;">0%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main-content %}
+{% block extra-js %}
+<script type="text/javascript" src="/static/js/datetimepicker.js"></script>
+<script type="text/javascript" src="/static/js/jquery-iframe.js.js"></script>
+<script type="text/javascript" src="/static/js/jquery.fileupload.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        /* 1. OPEN THE FILE EXPLORER WINDOW */
+        $(".js-upload-photos").click(function () {
+            var should_save = $('#should_save').val();
+            console.log(should_save)
+            $("#fileupload").click();
+        });
+
+        /* 2. INITIALIZE THE FILE UPLOAD COMPONENT */
+        $("#fileupload").fileupload({
+            dataType: 'json',
+            sequentialUploads: true,  /* 1. SEND THE FILES ONE BY ONE */
+            start: function (e) {  /* 2. WHEN THE UPLOADING PROCESS STARTS, SHOW THE MODAL */
+                $("#modal-progress").modal("show");
+            },
+            stop: function (e) {  /* 3. WHEN THE UPLOADING PROCESS FINALIZE, HIDE THE MODAL */
+                setTimeout(function () {
+                    $("#modal-progress").removeClass("in");
+                    $(".modal-backdrop").remove();
+                    $('body').removeClass('modal-open');
+                    $("#modal-progress").modal("hide");
+                }, 1000);
+            },
+            progressall: function (e, data) {  /* 4. UPDATE THE PROGRESS BAR */
+                var progress = parseInt(data.loaded / data.total * 100, 10);
+                var strProgress = progress + "%";
+                $(".progress-bar").css({ "width": strProgress });
+                $(".progress-bar").text(strProgress);
+            },
+            done: function (e, data) {
+                console.log("done")
+            }
+        });
+    });
+</script>
+{% endblock extra-js %}

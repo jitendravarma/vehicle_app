@@ -1,0 +1,105 @@
+{% extends 'index.html' %}
+
+{% block title %} Location Listing {% endblock title %}
+
+{% block main-content %}
+<div>
+    <h3 class="mt-4">Location</h3>
+    <h5 class="mb-4 mt-4">Add New</h5>
+    <div class="row">
+        <div class="col-8">
+            <form action="" method="POST">
+                {% csrf_token %}
+                <div class="form-group row">
+                    <label for="staticEmail" class="col-sm-3 col-form-label">City Name</label>
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control" name="city" placeholder="City Name" required>
+                        {% if form.city.errors %}
+                        <small class="form-text text-danger">{{form.city.errors.0}}</small>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="inputPassword" class="col-sm-3 col-form-label">Country</label>
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control" name="country" placeholder="Country Name" required>
+                        {% if form.country.errors %}
+                        <small class="form-text text-danger">{{form.country.errors.0}}</small>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="inputPassword" class="col-sm-3 col-form-label">UTC Date</label>
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control" name="utc_code" placeholder="UTC date" required>
+                    </div>
+                </div>
+                <div class="center">
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% if genres %}
+    <h4 class="mb-4 mt-4">All Genre</h4>
+    <div class="mt-4 mb-4">
+        <table class="table table-sm table-bordered p-0">
+            <thead>
+                <tr>
+                    <th scope="col">No.</th>
+                    <th scope="col">Genre</th>
+                </tr>
+            </thead>
+            {% csrf_token %}
+            <tbody>
+                {% for genre in genres %}
+                <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td>{{genre.name}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if form.filename.errors %}
+    <div class="alert alert-danger alert-row-error alert-dismissible" role="alert">
+        <strong>Alert!</strong>
+        <span class="error-text">{{ form.filename.errors.0 }}</span>
+        <button type="button" class="hide-Alert close" aria-label="Close">
+            <span class="hide-error-message">&times;</span>
+        </button>
+    </div>
+    {% endif %}
+    {% if is_paginated %}
+    <div class="m-4 row">
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#"><span>&laquo;</span></a></li>
+                {% endif %}
+                {% for i in paginator.page_range %}
+                {% if page_obj.number == i %}
+                <li class="page-item active"><a class="page-link" href="#">{{ i }} <span
+                            class="sr-only">(current)</span></a></li>
+                {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+                {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#"><span>&raquo;</span></a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+    {% endif %}
+</div>
+{% endblock main-content %}
+{% block extra-js %}
+<script type="text/javascript" src="/static/js/datetimepicker.js"></script>
+{% endblock extra-js %}
